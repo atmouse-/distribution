@@ -28,6 +28,8 @@ func blobUploadDispatcher(ctx *Context, r *http.Request) http.Handler {
 		"HEAD": http.HandlerFunc(buh.GetUploadStatus),
 	}
 
+	buh.Taglimit = ctx.Config.HTTP.Taglimit
+
 	if !ctx.readOnly {
 		handler["POST"] = http.HandlerFunc(buh.StartBlobUpload)
 		handler["PATCH"] = http.HandlerFunc(buh.PatchBlobData)
@@ -100,6 +102,8 @@ type blobUploadHandler struct {
 	Upload distribution.BlobWriter
 
 	State blobUploadState
+
+	Taglimit int
 }
 
 // StartBlobUpload begins the blob upload process and allocates a server-side
@@ -114,6 +118,23 @@ func (buh *blobUploadHandler) StartBlobUpload(w http.ResponseWriter, r *http.Req
 		opt, err := buh.createBlobMountOption(fromRepo, mountDigest)
 		if opt != nil && err == nil {
 			options = append(options, opt)
+		}
+	}
+
+	if buh.Taglimit > 0 {
+		tagService := buh.Repository.Tags(buh)
+		tags, err := tagService.All(buh)
+		if err != nil {
+			// tags empty or get err do nothing
+			//buh.Errors = append(buh.Errors, errcode.ErrorCodeUnknown.WithDetail(err))
+			//return
+		} else {
+			dcontext.GetLogger(buh).Infof("StartBlobUpload: got tags num: %d", len(tags))
+			if len(tags) > buh.Taglimit {
+				dcontext.GetLogger(buh).Infof("StartBlobUpload: got tags num: %d > %d", len(tags), buh.Taglimit)
+				buh.Errors = append(buh.Errors, errcode.ErrorCodeDenied.WithMessage("tags maximum limits readched"))
+				return
+			}
 		}
 	}
 

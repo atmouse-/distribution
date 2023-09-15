@@ -44,6 +44,7 @@ func setupRegistry() (*Registry, error) {
 	// already listening on port 5000
 	config.HTTP.Addr = ":5000"
 	config.HTTP.DrainTimeout = time.Duration(10) * time.Second
+	config.HTTP.Taglimit = 1000
 	config.Storage = map[string]configuration.Parameters{"inmemory": map[string]interface{}{}}
 	return NewRegistry(context.Background(), config)
 }

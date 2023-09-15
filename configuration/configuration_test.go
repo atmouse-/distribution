@@ -79,6 +79,7 @@ var configStruct = Configuration{
 		Secret       string        `yaml:"secret,omitempty"`
 		RelativeURLs bool          `yaml:"relativeurls,omitempty"`
 		DrainTimeout time.Duration `yaml:"draintimeout,omitempty"`
+		Taglimit     int           `yaml:"taglimit,omitempty"`
 		TLS          struct {
 			Certificate string   `yaml:"certificate,omitempty"`
 			Key         string   `yaml:"key,omitempty"`

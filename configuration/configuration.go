@@ -89,6 +89,9 @@ type Configuration struct {
 		// receives a stop signal
 		DrainTimeout time.Duration `yaml:"draintimeout,omitempty"`
 
+		// Taglimit per image
+		Taglimit int `yaml:"taglimit,omitempty"`
+
 		// TLS instructs the http server to listen with a TLS configuration.
 		// This only support simple tls configuration with a cert and key.
 		// Mostly, this is useful for testing situations or simple deployments
